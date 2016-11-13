@@ -1,0 +1,56 @@
+version: '2'
+services:
+  mysql:
+    image: mysql
+
+    # hostの3306とcontainerの3306をつなぐ
+    ports:
+      - "13306:3306"
+
+    # ほかのコンテナに公開するポート
+    expose:
+      - "3306"
+
+    # host(この場合boot2docker) と syncするdirectory
+    volumes:
+    #   - /var/tmp/your-app/mysql:/var/lib/mysql
+      # mysql の設定自動読み込み
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    #   # 流しこむSQLを置く場所
+    #   - ./mysql/init_db.d:/docker-entrypoint-initdb.d
+
+    # 環境変数
+    environment:
+      # 最初のイメージ起動に作成するユーザ名
+      MYSQL_USER: procra
+      # そのパスワード
+      MYSQL_PASSWORD: password
+      # root のパスワード
+      MYSQL_ROOT_PASSWORD: password
+      # 最初のイメージ起動に作成するDB名
+      MYSQL_DATABASE: procra
+  proxyserver1:
+    image: debian
+    command: tail -f /dev/null
+    ports:
+      - "18080:8080"
+    expose:
+      - "8080"
+    volumes:
+      - ./proxyserver:/root/app
+  proxyserver2:
+    image: debian
+    command: tail -f /dev/null
+    ports:
+      - "18081:8080"
+    expose:
+      - "8080"
+    volumes:
+      - ./proxyserver:/root/app
+  crawler:
+    image: debian
+    links:
+      - proxyserver1
+      - proxyserver2
+    volumes:
+      - .:/root/app

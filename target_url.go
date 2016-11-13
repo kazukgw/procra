@@ -32,3 +32,15 @@ func (targ *TargetURL) URL() *url.URL {
 	}
 	return targ.target
 }
+
+func NextTargetURL(db *gorm.DB) *TargetURL {
+	targ := &TargetURL{}
+	db.Joins(`
+	join target_url_stats on
+	target_urls.id = target_url_stats.target_url_id
+	`).Order(`
+	target_url_stats.total_attempted_num asc,
+	target_url_stats.last_attempted asc
+	`).First(targ)
+	return targ
+}

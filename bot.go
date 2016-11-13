@@ -8,8 +8,6 @@ import (
 )
 
 type Bot struct {
-	Conf Config
-	HTMLRepository
 	Logger       *logrus.Logger
 	BaseContext  context.Context
 	PrevState    BotState
@@ -22,21 +20,31 @@ type Bot struct {
 	errCh        chan error
 }
 
-type Config struct {
-	Cron string
-}
-
-func NewBot(conf Config, logger *logrus.Logger) *Bot {
-	crn := cron.New()
+func NewBot(
+	logger *logrus.Logger,
+	state BotState,
+	pxs []*Proxy,
+) *Bot {
 	bot := &Bot{
-		Conf: conf,
-		crn:  crn,
+		Logger:       logger,
+		Proxies:      pxs,
+		CurrentState: state,
+		resultCh:     make(chan *Result),
+		nextStateCh:  make(chan BotState),
+		stopCh:       make(chan error),
+		errCh:        make(chan error),
+	}
+	for _, px := range pxs {
+		px.Bot = bot
 	}
 	return bot
 }
 
 func (bot *Bot) Start() error {
 	bot.Logger.Info("bot start")
+	bot.UpdateState(bot.CurrentState)
+	bot.Logger.Info(bot.CurrentState)
+	bot.StartProxies()
 	go bot.crn.Start()
 
 	for {
@@ -49,6 +57,7 @@ func (bot *Bot) Start() error {
 			}
 		case next := <-bot.nextStateCh:
 			bot.UpdateState(next)
+			bot.crn.Start()
 		case err := <-bot.errCh:
 			if err := bot.CurrentState.HandleError(bot, err); err != nil {
 				bot.Stop(err)
@@ -62,6 +71,8 @@ func (bot *Bot) Start() error {
 
 func (bot *Bot) SendResult(result *Result) {
 	go func() {
+		bot.Logger.Info("==> bot", bot)
+		bot.Logger.Info("==> result", result)
 		bot.resultCh <- result
 	}()
 }
@@ -85,13 +96,21 @@ func (bot *Bot) Stop(err error) {
 }
 
 func (bot *Bot) UpdateState(next BotState) {
-	bot.crn.Stop()
-	bot.crn = nil
+	if bot.crn != nil {
+		bot.crn.Stop()
+		bot.crn = nil
+	}
 	bot.PrevState = bot.CurrentState
 	bot.CurrentState = next
 	bot.crn = cron.New()
 	bot.crn.AddFunc(bot.CurrentState.CronString(), func() {
+		bot.Logger.Debug("called cron fetch func")
 		bot.CurrentState.Fetch(bot)
 	})
-	bot.crn.Start()
+}
+
+func (bot *Bot) StartProxies() {
+	for _, px := range bot.Proxies {
+		go px.Start()
+	}
 }

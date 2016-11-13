@@ -10,5 +10,4 @@ type Attempt struct {
 	Result      string
 	StatusCode  int
 	TargetURLID int `gorm:"index:idx_target_url_id"`
-	TargetURL   `gorm:"ForeignKey:TargetURLID"`
 }
