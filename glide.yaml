@@ -1,0 +1,20 @@
+package: bitbucket.org/monotaro/monotaro_crawler2
+import:
+- package: github.com/Sirupsen/logrus
+  version: ^0.11.0
+- package: github.com/elazarl/goproxy
+  version: ^1.0.0
+- package: github.com/go-sql-driver/mysql
+  version: ^1.2.0
+- package: github.com/jinzhu/gorm
+  version: ^1.0.0
+- package: github.com/mitchellh/goamz
+  subpackages:
+  - aws
+  - s3
+- package: github.com/sevlyar/go-daemon
+  version: ^0.1.0
+- package: gopkg.in/robfig/cron.v2
+  version: ^1.0.0
+- package: gopkg.in/urfave/cli.v1
+  version: ^1.18.1

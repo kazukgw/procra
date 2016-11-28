@@ -1,0 +1,33 @@
+hash: 29392dcc4f4cf37bc936e6d4aee9c3e55b22a6753aebb93c87c34f68959a8e2b
+updated: 2016-11-14T18:48:33.758129184+09:00
+imports:
+- name: github.com/elazarl/goproxy
+  version: 0a5b8bdb09049ae4ae68e75437ded0b7a2e324e3
+- name: github.com/go-sql-driver/mysql
+  version: a732e14c62dde3285440047bba97581bc472ae18
+- name: github.com/jinzhu/gorm
+  version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
+- name: github.com/jinzhu/inflection
+  version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+- name: github.com/kardianos/osext
+  version: c2c54e542fb797ad986b31721e1baedf214ca413
+- name: github.com/mitchellh/goamz
+  version: caaaea8b30ee15616494ee68abd5d8ebbbef05cf
+  subpackages:
+  - aws
+  - s3
+- name: github.com/sevlyar/go-daemon
+  version: 3bf5e993af87194518e81cf9a81c1c53190a8911
+- name: github.com/Sirupsen/logrus
+  version: d26492970760ca5d33129d2d799e34be5c4782eb
+- name: github.com/vaughan0/go-ini
+  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
+- name: golang.org/x/sys
+  version: b699b7032584f0953262cb2788a0ca19bb494703
+  subpackages:
+  - unix
+- name: gopkg.in/robfig/cron.v2
+  version: b024fc5ea0e34bc3f83d9941c8d60b0622bfaca4
+- name: gopkg.in/urfave/cli.v1
+  version: a14d7d367bc02b1f57d88de97926727f2d936387
+testImports: []

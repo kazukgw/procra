@@ -1,4 +1,4 @@
-package procra
+package monocra2
 
 type BotState interface {
 	String() string

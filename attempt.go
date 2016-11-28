@@ -1,4 +1,4 @@
-package procra
+package monocra2
 
 import (
 	"github.com/jinzhu/gorm"
@@ -9,5 +9,5 @@ type Attempt struct {
 
 	Result      string
 	StatusCode  int
-	TargetURLID int `gorm:"index:idx_target_url_id"`
+	TargetURLID uint `gorm:"not null;index:idx_target_url_id"`
 }

@@ -4,16 +4,16 @@ import (
 	"gopkg.in/h2non/gentleman.v1"
 	"net/http"
 
+	"bitbucket.org/monotaro/monotaro_crawler2"
 	"github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"github.com/kazukgw/procra"
 )
 
 func main() {
 	db, err := gorm.Open(
 		"mysql",
-		"procra:password@tcp(192.168.99.100:13306)/procradb",
+		"monocra2:password@tcp(192.168.99.100:13306)/monocra2",
 	)
 
 	if err != nil {
@@ -22,7 +22,7 @@ func main() {
 	defer db.Close()
 
 	logger := logrus.New()
-	bot := procra.NewBot(
+	bot := monocra2.NewBot(
 		logger,
 		initBotState(db, logger),
 		initProxies(db, logger),
@@ -30,22 +30,22 @@ func main() {
 	bot.Start()
 }
 
-func initBotState(db *gorm.DB, logger *logrus.Logger) procra.BotState {
+func initBotState(db *gorm.DB, logger *logrus.Logger) monocra2.BotState {
 	return &DefaultBotState{
 		DB:     db,
 		Logger: logger,
 	}
 }
 
-func initProxies(db *gorm.DB, logger *logrus.Logger) []*procra.Proxy {
-	pxs := []*procra.Proxy{}
+func initProxies(db *gorm.DB, logger *logrus.Logger) []*monocra2.Proxy {
+	pxs := []*monocra2.Proxy{}
 	urls := []string{"proxy1:8080", "proxy2:8080"}
 	for _, u := range urls {
 		st := &DefaultProxyState{
 			DB:     db,
 			Logger: logger,
 		}
-		px := procra.NewProxy(u, logger, st)
+		px := monocra2.NewProxy(u, logger, st)
 		pxs = append(pxs, px)
 	}
 	return pxs
@@ -64,25 +64,25 @@ func (bs *DefaultBotState) CronString() string {
 	return "@every 5s"
 }
 
-func (bs *DefaultBotState) Fetch(bot *procra.Bot) {
+func (bs *DefaultBotState) Fetch(bot *monocra2.Bot) {
 	bs.Logger.Info("fetch in bot state")
 	px := bot.Proxies[0]
-	targ := &procra.TargetURL{}
+	targ := &monocra2.TargetURL{}
 	targ.Scheme = "https"
 	targ.Host = "google.co.jp"
 	px.Fetch(targ)
 }
 
 func (bs *DefaultBotState) HandleResult(
-	bot *procra.Bot,
-	ret *procra.Result,
+	bot *monocra2.Bot,
+	ret *monocra2.Result,
 ) error {
 	bs.Logger.Info("handle result")
 	return nil
 }
 
 func (bs *DefaultBotState) HandleError(
-	bot *procra.Bot,
+	bot *monocra2.Bot,
 	err error,
 ) error {
 	bs.Logger.Info("handle error")
@@ -99,7 +99,7 @@ func (ps *DefaultProxyState) String() string {
 }
 
 func (ps *DefaultProxyState) Fetch(
-	targ *procra.TargetURL,
+	targ *monocra2.TargetURL,
 ) (*http.Response, error) {
 	ps.Logger.Info("fetch in proxy")
 	res, err := gentleman.New().URL(targ.URL().String()).Get().Do()
@@ -107,7 +107,7 @@ func (ps *DefaultProxyState) Fetch(
 	return res.RawResponse, err
 }
 
-func (ps *DefaultProxyState) HandleResult(px *procra.Proxy, ret *procra.Result) error {
+func (ps *DefaultProxyState) HandleResult(px *monocra2.Proxy, ret *monocra2.Result) error {
 	ps.Logger.Info("handle result")
 	ps.Logger.Info("result:", ret)
 	return nil

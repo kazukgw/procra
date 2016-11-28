@@ -22,13 +22,13 @@ services:
     # 環境変数
     environment:
       # 最初のイメージ起動に作成するユーザ名
-      MYSQL_USER: procra
+      MYSQL_USER: monocra2
       # そのパスワード
       MYSQL_PASSWORD: password
       # root のパスワード
       MYSQL_ROOT_PASSWORD: password
       # 最初のイメージ起動に作成するDB名
-      MYSQL_DATABASE: procra
+      MYSQL_DATABASE: monocra2
   proxyserver1:
     image: debian
     command: tail -f /dev/null
@@ -49,8 +49,11 @@ services:
       - ./proxyserver:/root/app
   crawler:
     image: debian
+    command: tail -f /dev/null
     links:
+      - mysql
       - proxyserver1
       - proxyserver2
     volumes:
       - .:/root/app
+

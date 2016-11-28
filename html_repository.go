@@ -1,8 +1,7 @@
-package procra
+package monocra2
 
 import (
 	"io/ioutil"
-	"os"
 	"path"
 
 	"github.com/mitchellh/goamz/aws"
@@ -32,7 +31,7 @@ type HTMLS3Repository struct {
 	s3.ACL
 	AccessKey string
 	SecretKey string
-	*aws.Auth
+	aws.Auth
 	*s3.Bucket
 	client *s3.S3
 }
@@ -43,13 +42,9 @@ func (repo *HTMLS3Repository) Init() error {
 		return err
 	}
 	repo.Auth = auth
-	repo.Client = s3.New(auth, repo.Region)
-	repo.Bucket = repo.Client.Bucket(repo.BucketName)
+	repo.client = s3.New(auth, repo.Region)
+	repo.Bucket = repo.client.Bucket(repo.BucketName)
 	return nil
-}
-
-func (repo *HTMLS3Repository) Auth() {
-
 }
 
 func (repo *HTMLS3Repository) Put(key string, dat []byte) error {

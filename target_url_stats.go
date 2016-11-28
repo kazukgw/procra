@@ -1,4 +1,4 @@
-package procra
+package monocra2
 
 import (
 	"time"
@@ -9,10 +9,10 @@ import (
 type TargetURLStats struct {
 	gorm.Model
 
-	TotalSavedNum     int       `gorm:"index:idx_total_saved_num"`
-	TotalAttemptedNum int       `gorm:"index:idx_total_attemtped_num"`
-	LastAttempted     time.Time `gorm:"not null;index:idx_last_attemted"`
-	LastResult        string    `gorm:"not null;index:idx_last_result""`
+	TotalSavedNum     int        `gorm:"not null;index:idx_total_saved_num" sql:"DEFAULT:0"`
+	TotalAttemptedNum int        `gorm:"not null;index:idx_total_attemtped_num" sql:"DEFAULT:0"`
+	LastAttempted     *time.Time `gorm:"index:idx_last_attemted"`
+	LastResult        string     `gorm:"not null;index:idx_last_result"`
 
-	TargetURLID int `gorm:"index:idx_target_url_id"`
+	TargetURLID uint `gorm:"not null;index:idx_target_url_id"`
 }

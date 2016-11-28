@@ -1,4 +1,4 @@
-package procra
+package monocra2
 
 import (
 	"github.com/jinzhu/gorm"
@@ -14,8 +14,8 @@ type TargetURL struct {
 	RawQuery string `gorm:"index:idx_rawquery"`
 	Fragment string `gorm:"index:idx_fragment"`
 
-	Rank     int `gorm:"index:idx_rank"`
-	Priority int `gorm:"index:idx_priority"`
+	Rank     int `gorm:"index:idx_rank" sql:"DEFAULT:1"`
+	Priority int `gorm:"index:idx_priority" sql:"DEFAULT:1"`
 
 	target *url.URL `gorm:"-"`
 }
@@ -33,6 +33,26 @@ func (targ *TargetURL) URL() *url.URL {
 	return targ.target
 }
 
+func (targ *TargetURL) AfterCreate(tx *gorm.DB) {
+	tx.Create(&TargetURLStats{TargetURLID: targ.ID})
+}
+
+func NewTargetURLFromRawURL(rawurl string) (*TargetURL, error) {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return nil, err
+	}
+	targ := &TargetURL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     u.Path,
+		RawQuery: u.RawQuery,
+		Fragment: u.Fragment,
+		target:   u,
+	}
+	return targ, nil
+}
+
 func NextTargetURL(db *gorm.DB) *TargetURL {
 	targ := &TargetURL{}
 	db.Joins(`
@@ -43,4 +63,8 @@ func NextTargetURL(db *gorm.DB) *TargetURL {
 	target_url_stats.last_attempted asc
 	`).First(targ)
 	return targ
+}
+
+func NextTargetURLByRandom(db *gorm.DB) *TargetURL {
+	return nil
 }
